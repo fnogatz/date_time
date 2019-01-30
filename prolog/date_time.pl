@@ -442,7 +442,7 @@ date_fix(date(Y,M,D), date(Y,M,D)).
 
 date_islast(date(Y,M,MD), last) :-
    date_month_days(M,Y,MD), !.
-date_islast(date(Y,M,D), D).
+date_islast(date(_,_,D), D).
 
 date_month_days(0,_,31).
 date_month_days(1,_,31).
@@ -611,13 +611,13 @@ time_interval(time(H1,M1,_), time(H2,M2,_), mins(M)) :-
 time_interval(time(H1,M1,S1), time(H2,M2,S2), secs(S)) :-
    !, S is 3600*(H1-H2) + 60*(M1-M2) + (S1-S2).
 time_interval(time(H1,M1,_), time(H2,M2,_), hours(H)) :-
-   !, S is (H1-H2) + (M1-M2)/60.
+   !, H is (H1-H2) + (M1-M2)/60.
 time_interval(datetime(Y,L,D,H1,M1,_), datetime(Y,L,D,H2,M2,_), mins(M)) :-
    !, M is 60*(H1-H2) + (M1-M2).
 time_interval(datetime(Y,L,D,H1,M1,S1), datetime(Y,L,D,H2,M2,S2), secs(S)) :-
    !, S is 3600*(H1-H2) + 60*(M1-M2) + (S1-S2).
 time_interval(datetime(Y,L,D,H1,M1,_), datetime(Y,L,D,H2,M2,_), hours(H)) :-
-   !, S is (H1-H2) + (M1-M2)/60.
+   !, H is (H1-H2) + (M1-M2)/60.
 time_interval(datetime(Y1,L1,D1,H1,M1,_), datetime(Y2,L2,D2,H2,M2,_), mins(M)) :-
    !,
    date_interval(date(Y1,L1,D1), date(Y2,L2,D2), days(D)),
@@ -629,7 +629,7 @@ time_interval(datetime(Y1,L1,D1,H1,M1,S1), datetime(Y2,L2,D2,H2,M2,S2), secs(S))
 time_interval(datetime(Y1,L1,D1,H1,M1,_), datetime(Y2,L2,D2,H2,M2,_), hours(H)) :-
    !,
    date_interval(date(Y1,L1,D1), date(Y2,L2,D2), days(D)),
-   S is 24*D + (H1-H2) + (M1-M2)/60.
+   H is 24*D + (H1-H2) + (M1-M2)/60.
    
 
 %-----------------------------------------------------------
@@ -804,7 +804,7 @@ datetime_extract(datetime(_,M,_,_,_,_), months(M)).
 datetime_extract(datetime(_,_,D,_,_,_), days(D)).
 datetime_extract(datetime(_,_,_,H,_,_), hours(H)).
 datetime_extract(datetime(_,_,_,_,M,_), mins(M)).
-datetime_extract(datetime(_,_,_,_,_,S), secs(D)).
+datetime_extract(datetime(_,_,_,_,_,S), secs(S)).
 
 %--------------------------------------------------------------
 % Internal predicates used in datetime calculations.
