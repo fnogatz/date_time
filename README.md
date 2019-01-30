@@ -1,6 +1,6 @@
 # Date Time Library
 
-The Date Time Library contains predicates that perform logical arithmetic on dates and times. The distinction is most noticable when dealing with months, which have varying numbers of days. See the description of `date_add/3` for details.
+The Date Time Library contains predicates that perform logical arithmetic on dates and times. The distinction is most noticable when dealing with months, which have varying numbers of days. See the description of `date_add/3` for details. It is an adapted version of [the original `date_time` library](https://github.com/AmziLS/apls/blob/master/libs/date_time.pro) that is part of [Amzi! Core Components](https://github.com/AmziLS/apls) by [Amzi! inc.](http://www.amzi.com/), to be compatible with [SWI-Prolog](http://www.swi-prolog.org/)'s module system.
 
 The library uses three structures: `date/3`, `time/3` and `datetime/6`. Predicates are provided for dealing with each. The structure arguments are:
 
