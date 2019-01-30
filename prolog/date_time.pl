@@ -1,14 +1,9 @@
-:- op(50, xf, days).
-:- op(50, xf, months).
-:- op(50, xf, weeks).
-:- op(50, xf, years).
-:- op(50, xf, hours).
-:- op(50, xf, mins).
-:- op(50, xf, secs).
-:- op(700, xfx, <=).
+%-----------------------------------------------------------
+% Module definition
+%
 
-:- module(date_time).
-:- export( [
+:- module(date_time, 
+   [
       date_get/2,             % get a date for today, tomorrow, etc.
       date_create/4,          % create a new date structure
       date_extract/2,         % extract date fields from a date structure
@@ -39,11 +34,31 @@
       is_datetime_interval/1, % succeeds if expression is a date or time interval
       is_datetime/1,          % succeeds if expression is a datetime
       week_dayn/2,            % returns number for day of the week, 0 = Monday, 1 = Tuesday, ...
-      week_day/2              % returns the day of the week for a date or datetime
-      ]).
-:- end_module(date_time).
+      week_day/2,             % returns the day of the week for a date or datetime
 
-:- body(date_time).
+      % Custom operator definitions
+      op(50, xf, days),
+      op(50, xf, months),
+      op(50, xf, weeks),
+      op(50, xf, years),
+      op(50, xf, hours),
+      op(50, xf, mins),
+      op(50, xf, secs)
+   ]).
+
+
+%-----------------------------------------------------------
+% Native dependency requirements
+%
+
+:- use_module(library(date)).
+
+
+%-----------------------------------------------------------
+% Custom operator definitions
+%
+
+:- op(700, xfx, <=).
 
 
 %-----------------------------------------------------------
@@ -53,7 +68,12 @@
 % the DATE structure.
 %
 
-date_get(today, date(Y,M,D)) :- date(M,D,Y).
+date_get(today, date(Y,M,D)) :- 
+   get_time(Stamp),
+   stamp_date_time(Stamp, DateTime, local),
+   date_time_value(year, DateTime, Y),
+   date_time_value(month, DateTime, M),
+   date_time_value(day, DateTime, D).
 date_get(yesterday, DATE) :- date_add(today, days(-1), DATE).
 date_get(tomorrow, DATE) :- date_add(today, days(1), DATE).
 date_get(last_week, DATE) :- date_add(today, weeks(-1), DATE).
@@ -106,6 +126,7 @@ date_age(BDAY, AGE) :-
       AGE is A - 1
       ;
       AGE is A).
+
 
 %-----------------------------------------------------------
 % date_compare(+DATE_1, ?OP, +DATE_2)
@@ -241,7 +262,8 @@ reverse_unit_signs([+ A|As], [- A|Bs]) :-
    !, reverse_unit_signs(As, Bs).
 reverse_unit_signs([A|As], [- A|Bs]) :-
    !, reverse_unit_signs(As, Bs).
-   
+
+
 %-----------------------------------------------------------
 % date_difference(+DATE_1, +DATE_2, -DATE_QUANTITIES).
 %
@@ -287,29 +309,7 @@ date_difference(date(Y1,M1,D1), date(Y2,M2,D2),
    Y is Y1b - Y2,
    M is M1b - M2,
    D is D1a - D2.
-    
-/* had negative days
-date_difference(date(Y1,M1,D1), date(Y2,M2,D2),
-      [years(Y), months(M), days(D)]) :-
-   Y3 is Y1 - Y2,
-   M3 is M1 - M2,
-   ( (date_islast(date(Y1,M1,D1),last), date_islast(date(Y2,M2,D2),last)) ->
-     D = 0
-     ;
-     D is D1 - D2 ),
-   (M3 < 0 ->
-      M4 is M3 + 12,
-      Y4 is Y3 - 1
-      ;
-      Y4 = Y3,
-      M4 = M3),
-   (Y4 < 0 ->
-      Y is Y4 + 1,
-      M is M4 - 12
-      ;
-      Y = Y4,
-      M = M4).
-*/
+
 
 %----------------------------------------------------------
 % date_1900_days(Date, Days)
@@ -334,7 +334,7 @@ date_1900_days(Date, Days) :-
    date_1900_days(date(YearEst,1,1), DaysUsed),
    DaysLeft is Days - DaysUsed,
    date_add(date(YearEst,1,1), DaysLeft days, Date).
-   
+
 
 %----------------------------------------------------------
 % date_year_day(Date, YearDay)
@@ -347,6 +347,7 @@ date_year_day(date(Y,M,D), YearDay) :-
    MM is M - 1,
    date_add_month_days(MM, Y, 0, MonthDays),
    YearDay is MonthDays + D.
+
 
 %-----------------------------------------------------------
 % date_interval(Date1, Date2, Interval)
@@ -374,17 +375,11 @@ date_interval(D1, D2, Y years) :-
    !,
    date_difference(D1, D2, [Y years|_]).
 
+
 %-----------------------------------------------------------
 % Internal predicates used by exported
 % date predicates.
 %
-
-/* not used
-date_expression_ok(_ weeks).
-date_expression_ok(_ days).
-date_expression_ok(_ months).
-date_expression_ok(_ years).
-*/
 
 % make a date correct
 
@@ -426,7 +421,7 @@ date_fix(date(Y,M,D), date(Y,M,D)).
 
 date_islast(date(Y,M,MD), last) :-
    date_month_days(M,Y,MD), !.
-date_islast(date(Y,M,D), D).
+date_islast(date(_,_,D), D).
 
 date_month_days(0,_,31).
 date_month_days(1,_,31).
@@ -475,6 +470,7 @@ date_add_month_days(M, Y, Acc, Days) :-
 is_date(date(_,_,_)).
 is_date(today).
 
+
 %-----------------------------------------------------------
 % is_date_interval(+INTERVAL)
 %
@@ -492,7 +488,7 @@ is_date_interval(I1 - I2) :-
    is_date_interval(I2).
 is_date_interval(- I2) :-
    is_date_interval(I2).
-   
+
 
 %-----------------------------------------------------------
 % is_date_expression(+DATE)
@@ -512,7 +508,12 @@ is_date_expression(EXP) :-
 % Returns the current time.
 %
 
-time_get(now, time(H,M,S)) :- time(H,M,S).
+time_get(now, time(H,M,S)) :-
+   get_time(Stamp),
+   stamp_date_time(Stamp, DateTime, local),
+   date_time_value(hour, DateTime, H),
+   date_time_value(minute, DateTime, M),
+   date_time_value(second, DateTime, S).
 
 
 %-----------------------------------------------------------
@@ -590,13 +591,13 @@ time_interval(time(H1,M1,_), time(H2,M2,_), mins(M)) :-
 time_interval(time(H1,M1,S1), time(H2,M2,S2), secs(S)) :-
    !, S is 3600*(H1-H2) + 60*(M1-M2) + (S1-S2).
 time_interval(time(H1,M1,_), time(H2,M2,_), hours(H)) :-
-   !, S is (H1-H2) + (M1-M2)/60.
+   !, H is (H1-H2) + (M1-M2)/60.
 time_interval(datetime(Y,L,D,H1,M1,_), datetime(Y,L,D,H2,M2,_), mins(M)) :-
    !, M is 60*(H1-H2) + (M1-M2).
 time_interval(datetime(Y,L,D,H1,M1,S1), datetime(Y,L,D,H2,M2,S2), secs(S)) :-
    !, S is 3600*(H1-H2) + 60*(M1-M2) + (S1-S2).
 time_interval(datetime(Y,L,D,H1,M1,_), datetime(Y,L,D,H2,M2,_), hours(H)) :-
-   !, S is (H1-H2) + (M1-M2)/60.
+   !, H is (H1-H2) + (M1-M2)/60.
 time_interval(datetime(Y1,L1,D1,H1,M1,_), datetime(Y2,L2,D2,H2,M2,_), mins(M)) :-
    !,
    date_interval(date(Y1,L1,D1), date(Y2,L2,D2), days(D)),
@@ -608,8 +609,8 @@ time_interval(datetime(Y1,L1,D1,H1,M1,S1), datetime(Y2,L2,D2,H2,M2,S2), secs(S))
 time_interval(datetime(Y1,L1,D1,H1,M1,_), datetime(Y2,L2,D2,H2,M2,_), hours(H)) :-
    !,
    date_interval(date(Y1,L1,D1), date(Y2,L2,D2), days(D)),
-   S is 24*D + (H1-H2) + (M1-M2)/60.
-   
+   H is 24*D + (H1-H2) + (M1-M2)/60.
+
 
 %-----------------------------------------------------------
 % Time internal predicates
@@ -660,6 +661,7 @@ time_fix(time(H,M,S), time(H,M,S)).
 
 is_datetime(datetime(_,_,_,_,_,_)).
 
+
 %-----------------------------------------------------------
 % is_datetime_interval(+INTERVAL)
 %
@@ -677,7 +679,8 @@ is_datetime_interval(I1 - I2) :-
    is_datetime_interval(I2).
 is_datetime_interval(- I2) :-
    is_datetime_interval(I2).
-   
+
+
 %--------------------------------------------------------------
 % datetime_get(+WHEN, -DATETIME)
 %
@@ -783,7 +786,8 @@ datetime_extract(datetime(_,M,_,_,_,_), months(M)).
 datetime_extract(datetime(_,_,D,_,_,_), days(D)).
 datetime_extract(datetime(_,_,_,H,_,_), hours(H)).
 datetime_extract(datetime(_,_,_,_,M,_), mins(M)).
-datetime_extract(datetime(_,_,_,_,_,S), secs(D)).
+datetime_extract(datetime(_,_,_,_,_,S), secs(S)).
+
 
 %--------------------------------------------------------------
 % Internal predicates used in datetime calculations.
@@ -828,6 +832,7 @@ datetime_fix(datetime(Y,L,D,H,M,S), datetime(YY,LL,DD,HH,MM,SS)) :-
 datetime_fix(datetime(Y,L,D,H,M,S), datetime(YY,LL,DD,H,M,S)) :-
    date_fix(date(Y,L,D), date(YY,LL,DD)).
 
+
 %--------------------------------------------------
 % date_string(?DATE, ?FORMAT, ?STRING)
 %
@@ -862,13 +867,13 @@ datetime_fix(datetime(Y,L,D,H,M,S), datetime(YY,LL,DD,H,M,S)) :-
 
 date_string(DATE, FORMAT, STRING) :-
    nonvar(STRING), !,
-   string_list(STRING, LIST),
+   string_to_list(STRING, LIST),
    ds_date(DATE, FORMAT, LIST, []),
    !.
 date_string(DATE, FORMAT, STRING) :-
    ds_date(DATE, FORMAT, LIST, []),
    !,
-   string_list(STRING, LIST).
+   string_to_list(STRING, LIST).
  
 ds_date(date(Y,M,D), 'y/m/d') -->
    ds_year(Y), sp, "/", sp, ds_month(M), sp, "/", sp, ds_day(D), !.
@@ -893,6 +898,7 @@ ds_date(date(Y,M,D), 'mon d y') -->
 ds_date(date(Y,M,D), 'month d y') -->
    ds_long_month(M), " ", sp, ds_day(D), " ", sp, ds_year(Y), !.
 
+
 %--------------------------------------------------
 % time_string(?TIME, ?STRING)
 %
@@ -910,13 +916,14 @@ ds_date(date(Y,M,D), 'month d y') -->
 
 time_string(TIME, STRING) :-
    nonvar(STRING), !,
-   string_list(STRING, LIST),
+   string_to_list(STRING, LIST),
    ds_time(TIME, LIST, []),
    !.
 time_string(TIME, STRING) :-
    ds_time(TIME, LIST, []),
    !,
-   string_list(STRING, LIST).
+   string_to_list(STRING, LIST).
+
 
 %--------------------------------------------------
 % datetime_string(?DATE, ?FORMAT, ?STRING)
@@ -928,20 +935,21 @@ time_string(TIME, STRING) :-
 
 datetime_string(DT, FORMAT, STRING) :-
    nonvar(STRING), !,
-   string_list(STRING, LIST),
+   string_to_list(STRING, LIST),
    ds_datetime(DT, FORMAT, LIST, []),
    !.
 datetime_string(DT, FORMAT, STRING) :-
    ds_datetime(DT, FORMAT, LIST, []),
    !,
-   string_list(STRING, LIST).
+   string_to_list(STRING, LIST).
 
 ds_datetime(datetime(YR,DY,MO,HR,MI,SE), FORMAT) -->
    ds_date(date(YR,DY,MO), FORMAT),
    " ",
    sp,
    ds_time(time(HR,MI,SE)).
-   
+
+
 %--------------------------------------------------
 % Supporting predicates for string conversions
 %
@@ -964,9 +972,9 @@ ds_day2(DD) --> ds_number2(DD).
 ds_number(N) -->
    { var(N) }, !,
    ds_digits(D),
-   { string_list(S, D), string_integer(S, N)}.
+   { string_to_list(S, D), number_string(N, S)}.
 ds_number(N) -->
-   { string_integer(S, N), string_list(S, D) },
+   { number_string(N, S), string_to_list(S, D) },
    ds_digits(D).
 
 ds_digits([X|Y]) --> [X], {ds_digit(X)}, ds_digits(Y).
@@ -975,9 +983,9 @@ ds_digits([X]) --> [X], {ds_digit(X)}.
 ds_number2(N) -->
    { var(N) }, !,
    ds_digits(D),
-   { string_list(S, D), string_integer(S, N)}.
+   { string_to_list(S, D), number_string(N, S)}.
 ds_number2(N) -->
-   { string_integer(S, N), string_list(S, D) },
+   { number_string(N, S), string_to_list(S, D) },
    ds_digits2(D).
 
 ds_digits2([N]) --> [0'0, N], {ds_digit(N)}.
@@ -1014,6 +1022,7 @@ ds_long_month(10) --> "October".
 ds_long_month(11) --> "November".
 ds_long_month(12) --> "December".
 
+
 %---------------------------------------------
 % week_day(DT, WD)
 %
@@ -1047,19 +1056,3 @@ day_name(3, 'Thursday').
 day_name(4, 'Friday').
 day_name(5, 'Saturday').
 day_name(6, 'Sunday').
-
-%--------------------------------------------
-% utils
-%
-
-member(X, [X|_]).
-member(X, [_|Z]) :- member(X, Z).
-
-reverse(A, Z) :- reverse(A, [], Z).
-
-   reverse([], Z, Z).
-   reverse([A|X], SoFar, Z) :- reverse(X, [A|SoFar], Z).
-
-
-
-:- end_body(date_time).
