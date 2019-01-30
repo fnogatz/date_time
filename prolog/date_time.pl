@@ -1,6 +1,7 @@
 %-----------------------------------------------------------
 % Module definition
 %
+
 :- module(date_time, 
    [
       date_get/2,             % get a date for today, tomorrow, etc.
@@ -38,15 +39,16 @@
 
 
 %-----------------------------------------------------------
-% Native dependencies
+% Native dependency requirements
 %
 
 :- use_module(library(date)).
 
 
 %-----------------------------------------------------------
-% Custom operators
+% Custom operator definitions
 %
+
 :- op(50, xf, days).
 :- op(50, xf, months).
 :- op(50, xf, weeks).
@@ -122,6 +124,7 @@ date_age(BDAY, AGE) :-
       AGE is A - 1
       ;
       AGE is A).
+
 
 %-----------------------------------------------------------
 % date_compare(+DATE_1, ?OP, +DATE_2)
@@ -257,7 +260,8 @@ reverse_unit_signs([+ A|As], [- A|Bs]) :-
    !, reverse_unit_signs(As, Bs).
 reverse_unit_signs([A|As], [- A|Bs]) :-
    !, reverse_unit_signs(As, Bs).
-   
+
+
 %-----------------------------------------------------------
 % date_difference(+DATE_1, +DATE_2, -DATE_QUANTITIES).
 %
@@ -303,29 +307,7 @@ date_difference(date(Y1,M1,D1), date(Y2,M2,D2),
    Y is Y1b - Y2,
    M is M1b - M2,
    D is D1a - D2.
-    
-/* had negative days
-date_difference(date(Y1,M1,D1), date(Y2,M2,D2),
-      [years(Y), months(M), days(D)]) :-
-   Y3 is Y1 - Y2,
-   M3 is M1 - M2,
-   ( (date_islast(date(Y1,M1,D1),last), date_islast(date(Y2,M2,D2),last)) ->
-     D = 0
-     ;
-     D is D1 - D2 ),
-   (M3 < 0 ->
-      M4 is M3 + 12,
-      Y4 is Y3 - 1
-      ;
-      Y4 = Y3,
-      M4 = M3),
-   (Y4 < 0 ->
-      Y is Y4 + 1,
-      M is M4 - 12
-      ;
-      Y = Y4,
-      M = M4).
-*/
+
 
 %----------------------------------------------------------
 % date_1900_days(Date, Days)
@@ -350,7 +332,7 @@ date_1900_days(Date, Days) :-
    date_1900_days(date(YearEst,1,1), DaysUsed),
    DaysLeft is Days - DaysUsed,
    date_add(date(YearEst,1,1), DaysLeft days, Date).
-   
+
 
 %----------------------------------------------------------
 % date_year_day(Date, YearDay)
@@ -363,6 +345,7 @@ date_year_day(date(Y,M,D), YearDay) :-
    MM is M - 1,
    date_add_month_days(MM, Y, 0, MonthDays),
    YearDay is MonthDays + D.
+
 
 %-----------------------------------------------------------
 % date_interval(Date1, Date2, Interval)
@@ -390,17 +373,11 @@ date_interval(D1, D2, Y years) :-
    !,
    date_difference(D1, D2, [Y years|_]).
 
+
 %-----------------------------------------------------------
 % Internal predicates used by exported
 % date predicates.
 %
-
-/* not used
-date_expression_ok(_ weeks).
-date_expression_ok(_ days).
-date_expression_ok(_ months).
-date_expression_ok(_ years).
-*/
 
 % make a date correct
 
@@ -491,6 +468,7 @@ date_add_month_days(M, Y, Acc, Days) :-
 is_date(date(_,_,_)).
 is_date(today).
 
+
 %-----------------------------------------------------------
 % is_date_interval(+INTERVAL)
 %
@@ -508,7 +486,7 @@ is_date_interval(I1 - I2) :-
    is_date_interval(I2).
 is_date_interval(- I2) :-
    is_date_interval(I2).
-   
+
 
 %-----------------------------------------------------------
 % is_date_expression(+DATE)
@@ -630,7 +608,7 @@ time_interval(datetime(Y1,L1,D1,H1,M1,_), datetime(Y2,L2,D2,H2,M2,_), hours(H)) 
    !,
    date_interval(date(Y1,L1,D1), date(Y2,L2,D2), days(D)),
    H is 24*D + (H1-H2) + (M1-M2)/60.
-   
+
 
 %-----------------------------------------------------------
 % Time internal predicates
@@ -681,6 +659,7 @@ time_fix(time(H,M,S), time(H,M,S)).
 
 is_datetime(datetime(_,_,_,_,_,_)).
 
+
 %-----------------------------------------------------------
 % is_datetime_interval(+INTERVAL)
 %
@@ -698,7 +677,8 @@ is_datetime_interval(I1 - I2) :-
    is_datetime_interval(I2).
 is_datetime_interval(- I2) :-
    is_datetime_interval(I2).
-   
+
+
 %--------------------------------------------------------------
 % datetime_get(+WHEN, -DATETIME)
 %
@@ -806,6 +786,7 @@ datetime_extract(datetime(_,_,_,H,_,_), hours(H)).
 datetime_extract(datetime(_,_,_,_,M,_), mins(M)).
 datetime_extract(datetime(_,_,_,_,_,S), secs(S)).
 
+
 %--------------------------------------------------------------
 % Internal predicates used in datetime calculations.
 %
@@ -848,6 +829,7 @@ datetime_fix(datetime(Y,L,D,H,M,S), datetime(YY,LL,DD,HH,MM,SS)) :-
    datetime_fix(datetime(Y,L,D,H,M2,S2), datetime(YY,LL,DD,HH,MM,SS)).
 datetime_fix(datetime(Y,L,D,H,M,S), datetime(YY,LL,DD,H,M,S)) :-
    date_fix(date(Y,L,D), date(YY,LL,DD)).
+
 
 %--------------------------------------------------
 % date_string(?DATE, ?FORMAT, ?STRING)
@@ -914,6 +896,7 @@ ds_date(date(Y,M,D), 'mon d y') -->
 ds_date(date(Y,M,D), 'month d y') -->
    ds_long_month(M), " ", sp, ds_day(D), " ", sp, ds_year(Y), !.
 
+
 %--------------------------------------------------
 % time_string(?TIME, ?STRING)
 %
@@ -939,6 +922,7 @@ time_string(TIME, STRING) :-
    !,
    string_to_list(STRING, LIST).
 
+
 %--------------------------------------------------
 % datetime_string(?DATE, ?FORMAT, ?STRING)
 %
@@ -962,7 +946,8 @@ ds_datetime(datetime(YR,DY,MO,HR,MI,SE), FORMAT) -->
    " ",
    sp,
    ds_time(time(HR,MI,SE)).
-   
+
+
 %--------------------------------------------------
 % Supporting predicates for string conversions
 %
@@ -1035,6 +1020,7 @@ ds_long_month(10) --> "October".
 ds_long_month(11) --> "November".
 ds_long_month(12) --> "December".
 
+
 %---------------------------------------------
 % week_day(DT, WD)
 %
@@ -1068,6 +1054,7 @@ day_name(3, 'Thursday').
 day_name(4, 'Friday').
 day_name(5, 'Saturday').
 day_name(6, 'Sunday').
+
 
 %--------------------------------------------
 % utils
