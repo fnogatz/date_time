@@ -1,14 +1,8 @@
-:- op(50, xf, days).
-:- op(50, xf, months).
-:- op(50, xf, weeks).
-:- op(50, xf, years).
-:- op(50, xf, hours).
-:- op(50, xf, mins).
-:- op(50, xf, secs).
-:- op(700, xfx, <=).
-
-:- module(date_time).
-:- export( [
+%-----------------------------------------------------------
+% Module definition
+%
+:- module(date_time, 
+   [
       date_get/2,             % get a date for today, tomorrow, etc.
       date_create/4,          % create a new date structure
       date_extract/2,         % extract date fields from a date structure
@@ -40,10 +34,27 @@
       is_datetime/1,          % succeeds if expression is a datetime
       week_dayn/2,            % returns number for day of the week, 0 = Monday, 1 = Tuesday, ...
       week_day/2              % returns the day of the week for a date or datetime
-      ]).
-:- end_module(date_time).
+   ]).
 
-:- body(date_time).
+
+%-----------------------------------------------------------
+% Native dependencies
+%
+
+:- use_module(library(date)).
+
+
+%-----------------------------------------------------------
+% Custom operators
+%
+:- op(50, xf, days).
+:- op(50, xf, months).
+:- op(50, xf, weeks).
+:- op(50, xf, years).
+:- op(50, xf, hours).
+:- op(50, xf, mins).
+:- op(50, xf, secs).
+:- op(700, xfx, <=).
 
 
 %-----------------------------------------------------------
@@ -53,7 +64,12 @@
 % the DATE structure.
 %
 
-date_get(today, date(Y,M,D)) :- date(M,D,Y).
+date_get(today, date(Y,M,D)) :- 
+   get_time(Stamp),
+   stamp_date_time(Stamp, DateTime, local),
+   date_time_value(year, DateTime, Y),
+   date_time_value(month, DateTime, M),
+   date_time_value(day, DateTime, D).
 date_get(yesterday, DATE) :- date_add(today, days(-1), DATE).
 date_get(tomorrow, DATE) :- date_add(today, days(1), DATE).
 date_get(last_week, DATE) :- date_add(today, weeks(-1), DATE).
@@ -512,7 +528,12 @@ is_date_expression(EXP) :-
 % Returns the current time.
 %
 
-time_get(now, time(H,M,S)) :- time(H,M,S).
+time_get(now, time(H,M,S)) :-
+   get_time(Stamp),
+   stamp_date_time(Stamp, DateTime, local),
+   date_time_value(hour, DateTime, H),
+   date_time_value(minute, DateTime, M),
+   date_time_value(second, DateTime, S).
 
 
 %-----------------------------------------------------------
@@ -862,13 +883,13 @@ datetime_fix(datetime(Y,L,D,H,M,S), datetime(YY,LL,DD,H,M,S)) :-
 
 date_string(DATE, FORMAT, STRING) :-
    nonvar(STRING), !,
-   string_list(STRING, LIST),
+   string_to_list(STRING, LIST),
    ds_date(DATE, FORMAT, LIST, []),
    !.
 date_string(DATE, FORMAT, STRING) :-
    ds_date(DATE, FORMAT, LIST, []),
    !,
-   string_list(STRING, LIST).
+   string_to_list(STRING, LIST).
  
 ds_date(date(Y,M,D), 'y/m/d') -->
    ds_year(Y), sp, "/", sp, ds_month(M), sp, "/", sp, ds_day(D), !.
@@ -910,13 +931,13 @@ ds_date(date(Y,M,D), 'month d y') -->
 
 time_string(TIME, STRING) :-
    nonvar(STRING), !,
-   string_list(STRING, LIST),
+   string_to_list(STRING, LIST),
    ds_time(TIME, LIST, []),
    !.
 time_string(TIME, STRING) :-
    ds_time(TIME, LIST, []),
    !,
-   string_list(STRING, LIST).
+   string_to_list(STRING, LIST).
 
 %--------------------------------------------------
 % datetime_string(?DATE, ?FORMAT, ?STRING)
@@ -928,13 +949,13 @@ time_string(TIME, STRING) :-
 
 datetime_string(DT, FORMAT, STRING) :-
    nonvar(STRING), !,
-   string_list(STRING, LIST),
+   string_to_list(STRING, LIST),
    ds_datetime(DT, FORMAT, LIST, []),
    !.
 datetime_string(DT, FORMAT, STRING) :-
    ds_datetime(DT, FORMAT, LIST, []),
    !,
-   string_list(STRING, LIST).
+   string_to_list(STRING, LIST).
 
 ds_datetime(datetime(YR,DY,MO,HR,MI,SE), FORMAT) -->
    ds_date(date(YR,DY,MO), FORMAT),
@@ -964,9 +985,9 @@ ds_day2(DD) --> ds_number2(DD).
 ds_number(N) -->
    { var(N) }, !,
    ds_digits(D),
-   { string_list(S, D), string_integer(S, N)}.
+   { string_to_list(S, D), number_string(N, S)}.
 ds_number(N) -->
-   { string_integer(S, N), string_list(S, D) },
+   { number_string(N, S), string_to_list(S, D) },
    ds_digits(D).
 
 ds_digits([X|Y]) --> [X], {ds_digit(X)}, ds_digits(Y).
@@ -975,9 +996,9 @@ ds_digits([X]) --> [X], {ds_digit(X)}.
 ds_number2(N) -->
    { var(N) }, !,
    ds_digits(D),
-   { string_list(S, D), string_integer(S, N)}.
+   { string_to_list(S, D), number_string(N, S)}.
 ds_number2(N) -->
-   { string_integer(S, N), string_list(S, D) },
+   { number_string(N, S), string_to_list(S, D) },
    ds_digits2(D).
 
 ds_digits2([N]) --> [0'0, N], {ds_digit(N)}.
@@ -1057,9 +1078,5 @@ member(X, [_|Z]) :- member(X, Z).
 
 reverse(A, Z) :- reverse(A, [], Z).
 
-   reverse([], Z, Z).
-   reverse([A|X], SoFar, Z) :- reverse(X, [A|SoFar], Z).
-
-
-
-:- end_body(date_time).
+reverse([], Z, Z).
+reverse([A|X], SoFar, Z) :- reverse(X, [A|SoFar], Z).
