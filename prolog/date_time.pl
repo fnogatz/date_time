@@ -34,7 +34,16 @@
       is_datetime_interval/1, % succeeds if expression is a date or time interval
       is_datetime/1,          % succeeds if expression is a datetime
       week_dayn/2,            % returns number for day of the week, 0 = Monday, 1 = Tuesday, ...
-      week_day/2              % returns the day of the week for a date or datetime
+      week_day/2,             % returns the day of the week for a date or datetime
+
+      % Custom operator definitions
+      op(50, xf, days),
+      op(50, xf, months),
+      op(50, xf, weeks),
+      op(50, xf, years),
+      op(50, xf, hours),
+      op(50, xf, mins),
+      op(50, xf, secs)
    ]).
 
 
@@ -49,13 +58,6 @@
 % Custom operator definitions
 %
 
-:- op(50, xf, days).
-:- op(50, xf, months).
-:- op(50, xf, weeks).
-:- op(50, xf, years).
-:- op(50, xf, hours).
-:- op(50, xf, mins).
-:- op(50, xf, secs).
 :- op(700, xfx, <=).
 
 
