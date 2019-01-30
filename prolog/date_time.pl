@@ -1056,16 +1056,3 @@ day_name(3, 'Thursday').
 day_name(4, 'Friday').
 day_name(5, 'Saturday').
 day_name(6, 'Sunday').
-
-
-%--------------------------------------------
-% utils
-%
-
-member(X, [X|_]).
-member(X, [_|Z]) :- member(X, Z).
-
-reverse(A, Z) :- reverse(A, [], Z).
-
-reverse([], Z, Z).
-reverse([A|X], SoFar, Z) :- reverse(X, [A|SoFar], Z).
