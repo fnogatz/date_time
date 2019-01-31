@@ -32,21 +32,21 @@ date_difference(date(2002,3,2), date(2002,1,15), D) ->
 date_difference(date(2002,2,28), date(2002,1,31), X) ->
    X = [0 years, 1 months, 0 days].
 
-date_string(D, F, `24 Feb 1946`) ->
+date_string(D, F, "24 Feb 1946") ->
    D = date(1946, 2, 24),
    F = 'd mon y'.
-date_string(D, F, `February 24, 1946`) ->
+date_string(D, F, "February 24, 1946") ->
    D = date(1946, 2, 24),
    F = 'month d, y'.
 date_string(date(1946,2,24), 'month d, y', X) ->
-   X = `February 24, 1946`.
-date_string(D, 'd/m/y', `24/2/1946`) ->
+   X = "February 24, 1946".
+date_string(D, 'd/m/y', "24/2/1946") ->
    D = date(1946, 2, 24).
 date_string(date(1946,2,24), F, X) ->
    F = 'm/d/y',
-   X = `2/24/1946`.
+   X = "2/24/1946".
 
 time_string(time(2,33,15), X) ->
-   X = `2:33:15`.
-time_string(T, `2:33:22`) ->
+   X = "2:33:15".
+time_string(T, "2:33:22") ->
    T = time(2, 33, 22).
