@@ -28,7 +28,7 @@ date_add(date(2002,2,28), 1 months, X) ->
    X = date(2002, 3, 31).
 
 date_difference(date(2002,3,2), date(2002,1,15), D) ->
-   D = [0 years, 2 months, -13 days].
+   D = [0 years, 1 months, 15 days].
 date_difference(date(2002,2,28), date(2002,1,31), X) ->
    X = [0 years, 1 months, 0 days].
 

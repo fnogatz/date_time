@@ -276,7 +276,7 @@ reverse_unit_signs([A|As], [- A|Bs]) :-
 % to another date.
 %
 % ?- date_difference(date(2002,3,2), date(2002,1,15), D).
-% D = [0 years, 2 months, -13 days] 
+% D = [0 years, 1 months, 15 days] 
 % yes
 %
 % The special case of both dates being end of month
