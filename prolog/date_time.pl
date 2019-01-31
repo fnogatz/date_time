@@ -860,8 +860,8 @@ datetime_fix(datetime(Y,L,D,H,M,S), datetime(YY,LL,DD,H,M,S)) :-
 % yes
 %
 % ?- date_string(date(1946,2,24), F, X).
-% F = 'm/d/y'
-% X = `2/24/1946` 
+% F = 'y/m/d'
+% X = `1946/2/24` 
 % yes
 %
 

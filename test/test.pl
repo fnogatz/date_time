@@ -43,8 +43,8 @@ date_string(date(1946,2,24), 'month d, y', X) ->
 date_string(D, 'd/m/y', "24/2/1946") ->
    D = date(1946, 2, 24).
 date_string(date(1946,2,24), F, X) ->
-   F = 'm/d/y',
-   X = "2/24/1946".
+   F = 'y/m/d',
+   X = "1946/2/24".
 
 time_string(time(2,33,15), X) ->
    X = "2:33:15".
