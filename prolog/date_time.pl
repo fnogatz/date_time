@@ -2,7 +2,7 @@
 % Module definition
 %
 
-:- module(date_time, 
+:- module(date_time,
    [
       date_get/2,             % get a date for today, tomorrow, etc.
       date_create/4,          % create a new date structure
@@ -68,7 +68,7 @@
 % the DATE structure.
 %
 
-date_get(today, date(Y,M,D)) :- 
+date_get(today, date(Y,M,D)) :-
    get_time(Stamp),
    stamp_date_time(Stamp, DateTime, local),
    date_time_value(year, DateTime, Y),
@@ -137,7 +137,7 @@ date_age(BDAY, AGE) :-
 % test a relationship.
 %
 % ?- date_compare(date(2002,1,15), X, date(2002,2,24)).
-% X = < 
+% X = <
 % yes
 % ?- date_compare(date(2002,1,15), =<, date(2002,2,24)).
 % yes
@@ -170,11 +170,11 @@ date_compare(D1, <=, D2) :- D1 @=< D2, !.
 % and Mar 1st in leap year.
 %
 % ?- date_add(date(2002,1,15), [1 months, 2 days], D).
-% D = date(2002, 2, 17) 
+% D = date(2002, 2, 17)
 % yes
 %
 % ?- date_add(date(2002,1,15), [1 years, 1 months, 15 days], D).
-% D = date(2003, 3, 2) 
+% D = date(2003, 3, 2)
 % yes
 %
 % The special case of the last day of the month is
@@ -182,35 +182,35 @@ date_compare(D1, <=, D2) :- D1 @=< D2, !.
 % day of a month gets the last day of the next month.
 %
 % ?- date_add(date(2002,1,31), 1 months, X).
-% X = date(2002, 2, 28) 
+% X = date(2002, 2, 28)
 % yes
 %
 % ?- date_add(date(2002,2,28), 1 months, X).
-% X = date(2002, 3, 31) 
+% X = date(2002, 3, 31)
 % yes
 %
 
 date_add(DATE, [], DATE) :-
    !.
 date_add(D1, -(A1 + A2), DATE) :-
-   convert_exp(-(A1+A2), AList),
-   date_add(D1, AList, DATE),
-   !.
-date_add(D1, -(A1 - A2), DATE) :-
-   convert_exp(-(A1-A2), AList),
-   date_add(D1, AList, DATE),
-   !.
-date_add(D1, A1 + A2, DATE) :-
-   convert_exp(A1+A2, AList),
-   date_add(D1, AList, DATE),
-   !.
-date_add(D1, A1 - A2, DATE) :-
-   convert_exp(A1-A2, AList),
-   date_add(D1, AList, DATE),
-   !.
-date_add(D1, [DUNIT|DUNITS], DATE) :-
-   date_add(D1, DUNIT, D2),
    !,
+   convert_exp(-(A1+A2), AList),
+   date_add(D1, AList, DATE).
+date_add(D1, -(A1 - A2), DATE) :-
+   !,
+   convert_exp(-(A1-A2), AList),
+   date_add(D1, AList, DATE).
+date_add(D1, A1 + A2, DATE) :-
+   !,
+   convert_exp(A1+A2, AList),
+   date_add(D1, AList, DATE).
+date_add(D1, A1 - A2, DATE) :-
+   !,
+   convert_exp(A1-A2, AList),
+   date_add(D1, AList, DATE).
+date_add(D1, [DUNIT|DUNITS], DATE) :-
+   !,
+   date_add(D1, DUNIT, D2),
    date_add(D2, DUNITS, DATE).
 date_add(D1, - [DUNIT|DUNITS], DATE) :-
    !,
@@ -221,16 +221,20 @@ date_add(today, ADD, DATE) :-
    !,
    date_add(D1, ADD, DATE).
 date_add(D1, -ADD, DATE) :-
+   !,
    ADD =.. [UNIT, AMOUNT],
    MADD =.. [UNIT, -AMOUNT],
    date_add(D1, MADD, DATE).
 date_add(date(Y,M,D), days(D1), date(YY,MM,DD)) :-
+   !,
    D2 is D + D1,
    date_fix(date(Y,M,D2), date(YY,MM,DD)).
 date_add(date(Y,M,D), weeks(D1), date(YY,MM,DD)) :-
+   !,
    D2 is D + 7 * D1,
    date_fix(date(Y,M,D2), date(YY,MM,DD)).
 date_add(date(Y,M,D), months(M1), date(YY,MM,DD)) :-
+   !,
    M2 is M + M1,
    date_islast(date(Y,M,D), D2),
    date_fix(date(Y,M2,D2), date(YY,MM,DD)).
@@ -276,14 +280,14 @@ reverse_unit_signs([A|As], [- A|Bs]) :-
 % to another date.
 %
 % ?- date_difference(date(2002,3,2), date(2002,1,15), D).
-% D = [0 years, 1 months, 15 days] 
+% D = [0 years, 1 months, 15 days]
 % yes
 %
 % The special case of both dates being end of month
 % is recognized as being just a difference of one month.
 %
 % ?- date_difference(date(2002,2,28), date(2002,1,31), X).
-% X = [0 years, 1 months, 0 days] 
+% X = [0 years, 1 months, 0 days]
 % yes
 %
 
@@ -843,25 +847,25 @@ datetime_fix(datetime(Y,L,D,H,M,S), datetime(YY,LL,DD,H,M,S)) :-
 %
 % ?- date_string(D, F, `24 Feb 1946`).
 % D = date(1946, 2, 24)
-% F = 'd mon y' 
+% F = 'd mon y'
 % yes
 %
 % ?- date_string(D, F, `February 24, 1946`).
 % D = date(1946, 2, 24)
-% F = 'month d, y' 
+% F = 'month d, y'
 % yes
 %
 % ?- date_string(date(1946,2,24), 'month d, y', X).
-% X = `February 24, 1946` 
+% X = `February 24, 1946`
 % yes
 %
 % ?- date_string(D, 'd/m/y', `24/2/1946`).
-% D = date(1946, 2, 24) 
+% D = date(1946, 2, 24)
 % yes
 %
 % ?- date_string(date(1946,2,24), F, X).
 % F = 'y/m/d'
-% X = `1946/2/24` 
+% X = `1946/2/24`
 % yes
 %
 
@@ -874,20 +878,20 @@ date_string(DATE, FORMAT, STRING) :-
    ds_date(DATE, FORMAT, LIST, []),
    !,
    string_to_list(STRING, LIST).
- 
+
 ds_date(date(Y,M,D), 'y/m/d') -->
    ds_year(Y), sp, "/", sp, ds_month(M), sp, "/", sp, ds_day(D), !.
 ds_date(date(Y,M,D), 'm/d/y') -->
    ds_month(M), sp, "/", sp, ds_day(D), sp, "/", sp, ds_year(Y), !.
 ds_date(date(Y,M,D), 'mm/dd/yyyy') -->
    ds_month2(M), sp, "/", sp, ds_day2(D), sp, "/", sp, ds_year(Y), !.
-ds_date(date(Y,M,D), 'd/m/y') --> 
+ds_date(date(Y,M,D), 'd/m/y') -->
    ds_day(D), sp, "/", sp, ds_month(M), sp, "/", sp, ds_year(Y), !.
 ds_date(date(Y,M,D), 'y-m-d') -->
    ds_year(Y), sp, "-", sp, ds_month(M), sp, "-", sp, ds_day(D), !.
 ds_date(date(Y,M,D), 'm-d-y') -->
    ds_month(M), sp, "-", sp, ds_day(D), sp, "-", sp, ds_year(Y), !.
-ds_date(date(Y,M,D), 'd-m-y') --> 
+ds_date(date(Y,M,D), 'd-m-y') -->
    ds_day(D), sp, "-", sp, ds_month(M), sp, "-", sp, ds_year(Y), !.
 ds_date(date(Y,M,D), 'd mon y') -->
    ds_day(D), " ", sp, ds_short_month(M), " ", sp, ds_year(Y), !.
@@ -906,11 +910,11 @@ ds_date(date(Y,M,D), 'month d y') -->
 % form hh:mm:ss.
 %
 % ?- time_string(time(2,33,15), X).
-% X = `2:33:15` 
+% X = `2:33:15`
 % yes
 %
 % ?- time_string(T, `2:33:22`).
-% T = time(2, 33, 22) 
+% T = time(2, 33, 22)
 % yes
 %
 
