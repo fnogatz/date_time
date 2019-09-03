@@ -1,0 +1,6 @@
+*~
+*.swp
+
+# generated files
+doc/
+date_time-*.tgz
