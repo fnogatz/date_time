@@ -82,4 +82,4 @@ week_dayn/2,            % returns number for day of the week, 0 = Monday, 1 = Tu
 week_day/2,             % returns the day of the week for a date or datetime
 ```
 
-For further details have a look at the [implementation](prolog/date_time.pl), it is well documented. In addition, the [defined tests](test/test.pl) might give an impression on how to use this library. 
+For further details have a look at the [implementation](prolog/date_time.pl), it is well documented. In addition, the [defined tests](test/test.pl) might give an impression on how to use this library.
