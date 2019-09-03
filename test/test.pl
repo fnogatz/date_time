@@ -22,6 +22,10 @@ date_add(date(2002,1,15), [1 months, 2 days], D) ->
    D = date(2002, 2, 17).
 date_add(date(2002,1,15), [1 years, 1 months, 15 days], D) ->
    D = date(2003, 3, 2).
+date_add(date(2002,1,15), 1 months + 2 days, D) ->
+   D = date(2002, 2, 17).
+date_add(date(2002,1,15), 1 months - 2 days, D) ->
+   D = date(2002, 2, 13).
 date_add(date(2002,1,31), 1 months, X) ->
    X = date(2002, 2, 28).
 date_add(date(2002,2,28), 1 months, X) ->
