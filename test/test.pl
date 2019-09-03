@@ -50,3 +50,13 @@ time_string(time(2,33,15), X) ->
    X = "2:33:15".
 time_string(T, "2:33:22") ->
    T = time(2, 33, 22).
+
+date_get(today, _).
+date_get(yesterday, _).
+date_get(tomorrow, _).
+date_get(last_week, _).
+date_get(next_week, _).
+date_get(last_month, _).
+date_get(next_month, _).
+date_get(last_year, _).
+date_get(next_year, _).
