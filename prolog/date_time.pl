@@ -119,9 +119,9 @@ date_extract(date(_,_,D), days(D)).
 date_age(BDAY, AGE) :-
    date_get(today, TODAY),
    date_difference(TODAY, BDAY, DIFF),
-   member(A years, DIFF),
-   member(M months, DIFF),
-   member(D days, DIFF),
+   memberchk(A years, DIFF),
+   memberchk(M months, DIFF),
+   memberchk(D days, DIFF),
    (M == 0, D < 0 ->
       AGE is A - 1
       ;
@@ -218,7 +218,6 @@ date_add(D1, - [DUNIT|DUNITS], DATE) :-
    date_add(D1, [RUNIT|RUNITS], DATE).
 date_add(today, ADD, DATE) :-
    date_get(today, D1),
-   !,
    date_add(D1, ADD, DATE).
 date_add(D1, -ADD, DATE) :-
    !,
@@ -483,7 +482,7 @@ is_date(today).
 
 is_date_interval(INTERVAL) :-
    INTERVAL =.. [UNITS, _],
-   member(UNITS, [days, weeks, months, years]).
+   memberchk(UNITS, [days, weeks, months, years]).
 is_date_interval(I1 + I2) :-
    is_date_interval(I1),
    is_date_interval(I2).
@@ -503,7 +502,7 @@ is_date_interval(- I2) :-
 is_date_expression(date(_,_,_)).
 is_date_expression(EXP) :-
    EXP =.. [UNITS, _],
-   member(UNITS, [days, weeks, months, years]).
+   memberchk(UNITS, [days, weeks, months, years]).
 
 
 %-----------------------------------------------------------
@@ -543,21 +542,27 @@ time_compare(T1, <=, T2) :- T1 @=< T2, !.
 % hours/1, mins/1 or secs/1.
 %
 
-time_add(TIME, [], TIME) :- !.
+time_add(TIME, [], TIME) :-
+   !.
 time_add(T1, [TUNIT|TUNITS], TIME) :-
+   !,
    time_add(T1, TUNIT, T2),
-   !, time_add(T2, TUNITS, TIME).
+   time_add(T2, TUNITS, TIME).
 time_add(now, ADD, TIME) :-
+   !,
    time_get(now, T1),
    time_add(T1, ADD, TIME).
 time_add(T1, -ADD, TIME) :-
+   !,
    ADD =.. [UNIT, AMOUNT],
    MADD =.. [UNIT, -AMOUNT],
    time_add(T1, MADD, TIME).
 time_add(time(H,M,S), secs(S1), time(HH,MM,SS)) :-
+   !,
    S2 is S + S1,
    time_fix(time(H,M,S2), time(HH,MM,SS)).
 time_add(time(H,M,S), mins(M1), time(HH,MM,SS)) :-
+   !,
    M2 is M + M1,
    time_fix(time(H,M2,S), time(HH,MM,SS)).
 time_add(time(H,M,S), hours(H1), time(HH,MM,SS)) :-
@@ -649,7 +654,7 @@ time_fix(time(H,M,S), time(HH,MM,SS)) :-
    M2 is M - 1,
    time_fix(time(H,M2,S2), time(HH,MM,SS)).
 time_fix(time(H,M,S), time(HH,MM,SS)) :-
-   S > 59,
+   S >= 60,
    !,
    S2 is S - 60,
    M2 is M + 1,

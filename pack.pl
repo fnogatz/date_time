@@ -1,6 +1,6 @@
 name(date_time).
 
-version('0.1.2').
+version('0.1.3').
 download('https://github.com/fnogatz/date_time/releases/*.zip').
 
 title('Logical arithmetic on dates and times').
