@@ -217,6 +217,7 @@ date_add(D1, - [DUNIT|DUNITS], DATE) :-
    reverse_unit_signs([DUNIT|DUNITS],[RUNIT|RUNITS]),
    date_add(D1, [RUNIT|RUNITS], DATE).
 date_add(today, ADD, DATE) :-
+   !,
    date_get(today, D1),
    date_add(D1, ADD, DATE).
 date_add(D1, -ADD, DATE) :-
