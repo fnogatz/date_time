@@ -15,6 +15,9 @@ check: test
 install:
 	@echo "(none)"
 
+install-dev:
+	@$(SWIPL) -q -g 'pack_install(tap),halt(0)' -t 'halt(1)'
+
 test:
 	@$(SWIPL) -q -g 'main,halt(0)' -t 'halt(1)' -s test/test.pl
 
