@@ -967,34 +967,34 @@ ds_datetime(datetime(YR,DY,MO,HR,MI,SE), FORMAT) -->
 ds_time(time(H,M,S)) -->
    ds_hour(H), sp, ":", sp, ds_min(M), sp, ":", sp, ds_sec(S).
 
-ds_year(YY) --> { var(YY), ! }, ds_number(Y), { date_year_chk(Y, YY) }.
-ds_year(Y) --> { date_year_chk(Y, YY) }, ds_number(YY).
-ds_month(M) --> ds_number(M).
-ds_day(D) --> ds_number(D).
+ds_year(YY) --> { var(YY), ! }, ds_integer(Y), { date_year_chk(Y, YY) }.
+ds_year(Y) --> { date_year_chk(Y, YY) }, ds_integer(YY).
+ds_month(M) --> ds_integer(M).
+ds_day(D) --> ds_integer(D).
 
-ds_hour(H) --> ds_number(H).
-ds_min(M) --> ds_number(M).
-ds_sec(S) --> ds_number(S).
+ds_hour(H) --> ds_integer(H).
+ds_min(M) --> ds_integer(M).
+ds_sec(S) --> ds_integer(S).
 
-ds_month2(MM) --> ds_number2(MM).
-ds_day2(DD) --> ds_number2(DD).
+ds_month2(MM) --> ds_integer2(MM).
+ds_day2(DD) --> ds_integer2(DD).
 
-ds_number(N) -->
+ds_integer(N) -->
    { var(N) }, !,
    ds_digits(D),
    { string_to_list(S, D), number_string(N, S)}.
-ds_number(N) -->
+ds_integer(N) -->
    { number_string(N, S), string_to_list(S, D) },
    ds_digits(D).
 
 ds_digits([X|Y]) --> [X], {ds_digit(X)}, ds_digits(Y).
 ds_digits([X]) --> [X], {ds_digit(X)}.
 
-ds_number2(N) -->
+ds_integer2(N) -->
    { var(N) }, !,
    ds_digits(D),
    { string_to_list(S, D), number_string(N, S)}.
-ds_number2(N) -->
+ds_integer2(N) -->
    { number_string(N, S), string_to_list(S, D) },
    ds_digits2(D).
 
