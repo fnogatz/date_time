@@ -17,7 +17,7 @@ install:
 	@echo "(none)"
 
 install-dev:
-	@$(SWIPL) -q -g 'pack_install(tap),halt(0)' -t 'halt(1)'
+	@$(SWIPL) -q -g 'pack_install(tap,[interactive(false)]),halt(0)' -t 'halt(1)'
 
 test:
 	$(SWIPL) -q -p library=$(pwd)/prolog -g 'main,halt(0)' -t 'halt(1)' -s test/test.pl
