@@ -974,7 +974,13 @@ ds_day(D) --> ds_integer(D).
 
 ds_hour(H) --> ds_integer(H).
 ds_min(M) --> ds_integer(M).
-ds_sec(S) --> ds_integer(S).
+ds_sec(S) -->
+   { var(S) }, !,
+   ds_float(F),
+   { S is floor(F) }.
+ds_sec(S) -->
+   { D is floor(S) },
+   ds_integer(D).
 
 ds_month2(MM) --> ds_integer2(MM).
 ds_day2(DD) --> ds_integer2(DD).
@@ -986,6 +992,26 @@ ds_integer(N) -->
 ds_integer(N) -->
    { number_string(N, S), string_to_list(S, D) },
    ds_digits(D).
+
+ds_float(N) -->
+   { var(N) }, !,
+   ds_digits(D),
+   (  [0'.],
+      ds_digits(F)
+   -> {  append(D, [0'.|F], L),
+         string_to_list(S, L),
+         number_string(N, S) }
+   ;  {  string_to_list(S, D),
+         number_string(N, S)}
+   ).
+ds_float(N) -->
+   { number_string(N, S), string_to_list(S, L) },
+   (  { append(D, [0'.|F], L) }
+   -> ds_digits(D),
+      [0'.],
+      ds_digits(F)
+   ;  ds_digits(L)
+   ).
 
 ds_digits([X|Y]) --> [X], {ds_digit(X)}, ds_digits(Y).
 ds_digits([X]) --> [X], {ds_digit(X)}.
