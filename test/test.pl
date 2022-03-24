@@ -54,6 +54,12 @@ time_string(time(2,33,15), X) ->
    X = "2:33:15".
 time_string(T, "2:33:22") ->
    T = time(2, 33, 22).
+time_string(time(2,33,15.5), X) ->
+   X = "2:33:15".
+
+datetime_string(datetime(2022, 3, 3, 18, 55, 57), F, X) ->
+   F = 'y/m/d',
+   X = "2022/3/3 18:55:57".
 
 date_get(today, _).
 date_get(yesterday, _).
